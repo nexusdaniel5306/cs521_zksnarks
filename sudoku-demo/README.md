@@ -26,13 +26,13 @@ The generated proof verifies those claims without revealing the solution through
 
 ## Build the proving artifacts
 
-From [`backend/package.json`](/Users/dli/Desktop/CS521-Blockchain /cs521_zksnarks/sudoku-demo/backend/package.json):
+From [`backend/package.json`](/sudoku-demo/backend/package.json):
 
 ```bash
 npm run build:circuit
 ```
 
-This compiles the circuit and creates the Groth16 proving and verification artifacts under [`artifacts/`](/Users/dli/Desktop/CS521-Blockchain /cs521_zksnarks/sudoku-demo/artifacts).
+This compiles the circuit and creates the Groth16 proving and verification artifacts under [`artifacts/`](/sudoku-demo/artifacts).
 
 ## Start the backend
 
