@@ -44,6 +44,25 @@ npm start
 
 The backend fails fast on startup if the required proving artifacts are missing.
 
+## Web frontend
+
+A static frontend now lives in `frontend/` and is served by the backend at the root URL.
+
+After starting the backend, open:
+
+```text
+http://127.0.0.1:3000/
+```
+
+The UI supports:
+
+- loading a random hardcoded Sudoku puzzle
+- manually entering a solution
+- auto-solving for demo purposes
+- submitting to the backend proof-job API
+- polling and showing proof verification progress/stage
+- displaying success without exposing the solved board in the result panel
+
 ## Main API
 
 - `GET /api/v1/health`

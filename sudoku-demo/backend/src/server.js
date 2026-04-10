@@ -31,7 +31,8 @@ async function main() {
     const app = createApp({
         artifactRegistry,
         jobStore,
-        proofQueue
+        proofQueue,
+        frontendDir: config.frontendDir
     });
 
     const server = app.listen(config.port, config.host, () => {
