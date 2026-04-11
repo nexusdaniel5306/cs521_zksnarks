@@ -20,6 +20,7 @@ function createConfig(overrides = {}) {
         backendRoot,
         artifactsDir,
         examplesDir: path.join(sudokuDemoRoot, "examples"),
+        frontendDir: path.join(sudokuDemoRoot, "frontend"),
         artifactPaths: {
             artifactsDir,
             circuitName,

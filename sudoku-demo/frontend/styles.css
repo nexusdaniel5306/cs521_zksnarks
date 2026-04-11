@@ -1,0 +1,119 @@
+* {
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f4f6fb;
+    color: #1b1f24;
+}
+
+.container {
+    max-width: 900px;
+    margin: 24px auto;
+    padding: 0 16px 32px;
+}
+
+h1 {
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    margin-top: 0;
+    color: #4b5563;
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid #dbe1ea;
+    border-radius: 10px;
+    padding: 16px;
+    margin-top: 14px;
+}
+
+.controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+button {
+    border: 1px solid #274cdb;
+    border-radius: 8px;
+    background: #2f5cf4;
+    color: #fff;
+    padding: 8px 14px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #2147c4;
+}
+
+.hint {
+    margin: 6px 0 12px;
+    color: #4b5563;
+}
+
+.board {
+    width: fit-content;
+    display: grid;
+    grid-template-columns: repeat(9, 42px);
+    grid-template-rows: repeat(9, 42px);
+    border: 2px solid #111827;
+}
+
+.cell {
+    width: 42px;
+    height: 42px;
+    text-align: center;
+    font-size: 20px;
+    border: 1px solid #9ca3af;
+    outline: none;
+    background: #ffffff;
+}
+
+.cell.clue {
+    background: #e5e7eb;
+    font-weight: bold;
+}
+
+.cell[data-col="2"],
+.cell[data-col="5"] {
+    border-right: 2px solid #111827;
+}
+
+.cell[data-row="2"],
+.cell[data-row="5"] {
+    border-bottom: 2px solid #111827;
+}
+
+.status-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.message {
+    margin-bottom: 8px;
+}
+
+.result-box {
+    border: 1px solid #c6d6ff;
+    background: #eff4ff;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.result-box.hidden {
+    display: none;
+}
+
+.success {
+    color: #07520d;
+}
+
+.error {
+    color: #8a0f0f;
+}

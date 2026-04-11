@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku zk-SNARK Demo</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <main class="container">
+        <h1>Sudoku zk-SNARK Demo</h1>
+        <p class="subtitle">
+            Prove you know a valid Sudoku solution without revealing the solved board.
+        </p>
+
+        <section class="panel controls">
+            <button id="randomPuzzleBtn" type="button">Load Random Puzzle</button>
+            <button id="autoSolveBtn" type="button">Auto-solve Current Puzzle</button>
+            <button id="submitBtn" type="button">Generate zk Proof</button>
+        </section>
+
+        <section class="panel">
+            <h2>Puzzle Board</h2>
+            <p class="hint">Only empty cells are editable. Type digits 1-9.</p>
+            <div id="board" class="board" aria-label="Sudoku board"></div>
+        </section>
+
+        <section class="panel">
+            <h2>Proof Status</h2>
+            <div class="status-row">
+                <span>Status:</span>
+                <strong id="statusText">Not started</strong>
+            </div>
+            <div class="status-row">
+                <span>Stage:</span>
+                <strong id="stageText">-</strong>
+            </div>
+            <div class="status-row">
+                <span>Progress:</span>
+                <strong id="progressText">0%</strong>
+            </div>
+            <p id="messageText" class="message">Load a puzzle and submit a completed board.</p>
+            <div id="resultBox" class="result-box hidden"></div>
+        </section>
+    </main>
+
+    <script src="./script.js"></script>
+</body>
+</html>
