@@ -41,6 +41,32 @@
             </div>
             <p id="messageText" class="message">Load a puzzle and submit a completed board.</p>
             <div id="resultBox" class="result-box hidden"></div>
+
+            <details id="techDrawer" class="tech-drawer hidden">
+                <summary class="tech-drawer-summary">Technical details</summary>
+                <div class="tech-drawer-body">
+                    <div class="tech-field">
+                        <span class="tech-label">Job ID</span>
+                        <code id="techJobId" class="tech-value">—</code>
+                    </div>
+                    <div class="tech-field">
+                        <span class="tech-label">Stage timings (ms)</span>
+                        <pre id="techTimings" class="tech-pre tech-pre--compact">—</pre>
+                    </div>
+                    <div id="techErrorBlock" class="tech-field hidden">
+                        <span class="tech-label">Error</span>
+                        <pre id="techError" class="tech-pre tech-pre--compact"></pre>
+                    </div>
+                    <details class="tech-nested">
+                        <summary>Proof (Groth16)</summary>
+                        <pre id="techProof" class="tech-pre">—</pre>
+                    </details>
+                    <details class="tech-nested">
+                        <summary>Public signals</summary>
+                        <pre id="techPublicSignals" class="tech-pre">—</pre>
+                    </details>
+                </div>
+            </details>
         </section>
     </main>
 
