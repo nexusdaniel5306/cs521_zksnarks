@@ -117,3 +117,99 @@ button:hover {
 .error {
     color: #8a0f0f;
 }
+
+.tech-drawer {
+    margin-top: 14px;
+    border: 1px solid #dbe1ea;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: #f9fafb;
+}
+
+.tech-drawer.hidden {
+    display: none;
+}
+
+.tech-drawer-summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: #374151;
+    user-select: none;
+}
+
+.tech-drawer-summary::-webkit-details-marker {
+    margin-right: 8px;
+}
+
+.tech-drawer-body {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.tech-field {
+    margin-bottom: 12px;
+}
+
+.tech-field.hidden {
+    display: none;
+}
+
+.tech-label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+.tech-value {
+    font-size: 13px;
+    word-break: break-all;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    padding: 6px 8px;
+    display: block;
+}
+
+.tech-pre {
+    margin: 0;
+    padding: 10px;
+    font-size: 11px;
+    line-height: 1.45;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: auto;
+    max-height: 220px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.tech-pre--compact {
+    max-height: 140px;
+}
+
+.tech-nested {
+    margin-top: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 8px 10px;
+    background: #fff;
+}
+
+.tech-nested summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    color: #374151;
+}
+
+.tech-nested .tech-pre {
+    margin-top: 8px;
+    border: none;
+    padding: 8px 0 0;
+    max-height: 200px;
+}

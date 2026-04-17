@@ -55,6 +55,13 @@ const stageText = document.getElementById("stageText");
 const progressText = document.getElementById("progressText");
 const messageText = document.getElementById("messageText");
 const resultBox = document.getElementById("resultBox");
+const techDrawer = document.getElementById("techDrawer");
+const techJobId = document.getElementById("techJobId");
+const techTimings = document.getElementById("techTimings");
+const techProof = document.getElementById("techProof");
+const techPublicSignals = document.getElementById("techPublicSignals");
+const techErrorBlock = document.getElementById("techErrorBlock");
+const techError = document.getElementById("techError");
 
 let activeBoard = HARD_CODED_BOARDS[0];
 let currentPuzzle = cloneGrid(activeBoard.puzzle);
@@ -140,6 +147,58 @@ function resetStatus(message) {
     resultBox.classList.add("hidden");
     resultBox.textContent = "";
     resultBox.className = "result-box hidden";
+    clearTechnicalDetails();
+}
+
+function clearTechnicalDetails() {
+    techDrawer.classList.add("hidden");
+    techDrawer.open = false;
+    techJobId.textContent = "—";
+    techTimings.textContent = "—";
+    techProof.textContent = "—";
+    techPublicSignals.textContent = "—";
+    techErrorBlock.classList.add("hidden");
+    techError.textContent = "";
+}
+
+function formatTimingsMs(timingsMs) {
+    if (!timingsMs || typeof timingsMs !== "object") {
+        return "—";
+    }
+
+    const entries = Object.entries(timingsMs).filter(([, ms]) => typeof ms === "number");
+    if (entries.length === 0) {
+        return "—";
+    }
+
+    entries.sort((a, b) => a[1] - b[1]);
+    return entries.map(([stage, ms]) => `${stage}: ${ms}`).join("\n");
+}
+
+function renderTechnicalDetails(job) {
+    techDrawer.classList.remove("hidden");
+    techJobId.textContent = job.jobId || "—";
+    techTimings.textContent = formatTimingsMs(job.timingsMs);
+
+    if (job.error) {
+        techErrorBlock.classList.remove("hidden");
+        techError.textContent = JSON.stringify(job.error, null, 2);
+    } else {
+        techErrorBlock.classList.add("hidden");
+        techError.textContent = "";
+    }
+
+    if (job.result?.proof) {
+        techProof.textContent = JSON.stringify(job.result.proof, null, 2);
+    } else {
+        techProof.textContent = job.status === "COMPLETED" ? "(no proof in response)" : "—";
+    }
+
+    if (job.result?.publicSignals !== undefined && job.result?.publicSignals !== null) {
+        techPublicSignals.textContent = JSON.stringify(job.result.publicSignals, null, 2);
+    } else {
+        techPublicSignals.textContent = "—";
+    }
 }
 
 async function submitProofJob() {
@@ -169,6 +228,13 @@ async function submitProofJob() {
             throw new Error(created.error?.message || "Failed to create proof job");
         }
 
+        renderTechnicalDetails({
+            jobId: created.jobId,
+            status: created.status,
+            timingsMs: {},
+            result: null
+        });
+
         await pollProofJob(created.jobId);
     } catch (error) {
         setStatus({
@@ -197,6 +263,8 @@ async function pollProofJob(jobId) {
             progress: job.progressPercent,
             message: job.message || "Working on proof..."
         });
+
+        renderTechnicalDetails(job);
 
         if (job.status === "COMPLETED") {
             showResult(job.result?.verified === true, "Proof verified without revealing the solved board.");
