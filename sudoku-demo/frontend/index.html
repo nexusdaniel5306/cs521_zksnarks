@@ -75,6 +75,24 @@
                 </ul>
                 <p id="messageText" class="message">Load a puzzle and submit a completed board.</p>
                 <div id="resultBox" class="result-box hidden"></div>
+                <div class="live-grid">
+                    <section class="mini-panel">
+                        <h3 class="mini-title">Live stage log</h3>
+                        <ul id="stageLog" class="stage-log">
+                            <li class="stage-log-item stage-log-empty">No events yet.</li>
+                        </ul>
+                    </section>
+                    <section class="mini-panel">
+                        <div class="mini-title-row">
+                            <h3 class="mini-title">Latency mini-chart</h3>
+                            <button id="clearRunsBtn" type="button" class="ghost-btn">Clear history</button>
+                        </div>
+                        <p class="chart-note">Each bar is a completed job's total runtime (s).</p>
+                        <div id="latencyChart" class="latency-chart" aria-label="Latency chart">
+                            <div class="chart-empty">Run one proof to populate chart.</div>
+                        </div>
+                    </section>
+                </div>
 
                 <details id="techDrawer" class="tech-drawer hidden">
                     <summary class="tech-drawer-summary">Technical details</summary>

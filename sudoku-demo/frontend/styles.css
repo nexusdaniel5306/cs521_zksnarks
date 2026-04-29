@@ -191,6 +191,140 @@ button:hover {
     margin-bottom: 8px;
 }
 
+.live-grid {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.mini-panel {
+    border: 1px solid #e3e8f3;
+    border-radius: 10px;
+    background: #f8faff;
+    padding: 10px;
+}
+
+.mini-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.mini-title {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+.stage-log {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-height: 164px;
+    overflow: auto;
+}
+
+.stage-log-item {
+    border: 1px solid #d7deed;
+    background: #fff;
+    border-radius: 8px;
+    padding: 6px 8px;
+    font-size: 12px;
+    margin-bottom: 6px;
+    animation: log-enter 0.25s ease-out;
+}
+
+.stage-log-item:last-child {
+    margin-bottom: 0;
+}
+
+.stage-log-empty {
+    color: #6b7280;
+    text-align: center;
+    border-style: dashed;
+}
+
+.stage-log-ts {
+    color: #6b7280;
+    margin-right: 6px;
+}
+
+.stage-log-stage {
+    font-weight: 700;
+    color: #374151;
+}
+
+.stage-log-message {
+    margin-top: 2px;
+    color: #4b5563;
+    word-break: break-word;
+}
+
+.chart-note {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.latency-chart {
+    height: 164px;
+    border: 1px solid #d7deed;
+    border-radius: 8px;
+    background: #fff;
+    padding: 8px;
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    overflow-x: auto;
+}
+
+.chart-empty {
+    margin: auto;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.latency-bar {
+    width: 20px;
+    min-width: 20px;
+    border-radius: 6px 6px 0 0;
+    background: linear-gradient(180deg, #4b79ff, #2f5cf4);
+    position: relative;
+    transition: height 0.3s ease;
+}
+
+.latency-bar:hover::after {
+    content: attr(data-label);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111827;
+    color: #fff;
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 2;
+}
+
+.ghost-btn {
+    border: 1px solid #cdd7eb;
+    background: #fff;
+    color: #374151;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ghost-btn:hover {
+    background: #eef3ff;
+    box-shadow: none;
+}
+
 .result-box {
     border: 1px solid #c6d6ff;
     background: #eff4ff;
@@ -332,5 +466,20 @@ button:hover {
 
     .meta-grid {
         grid-template-columns: 1fr;
+    }
+
+    .live-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@keyframes log-enter {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }

@@ -62,6 +62,9 @@ const kpiFilled = document.getElementById("kpiFilled");
 const kpiClues = document.getElementById("kpiClues");
 const kpiJob = document.getElementById("kpiJob");
 const kpiElapsed = document.getElementById("kpiElapsed");
+const stageLog = document.getElementById("stageLog");
+const latencyChart = document.getElementById("latencyChart");
+const clearRunsBtn = document.getElementById("clearRunsBtn");
 const techJobId = document.getElementById("techJobId");
 const techCreatedAt = document.getElementById("techCreatedAt");
 const techStartedAt = document.getElementById("techStartedAt");
@@ -77,6 +80,9 @@ let currentPuzzle = cloneGrid(activeBoard.puzzle);
 let currentEntries = cloneGrid(activeBoard.puzzle);
 let elapsedTicker = null;
 let activeJobMeta = null;
+let previousStage = null;
+let lastStatus = null;
+const runHistory = [];
 
 function cloneGrid(grid) {
     return grid.map((row) => [...row]);
@@ -151,11 +157,14 @@ function setStatus({ status, stage, progress, message }) {
     messageText.textContent = message;
     progressFill.style.width = `${Math.max(0, Math.min(100, Number(progress) || 0))}%`;
     updateTimeline(stage, status);
+    appendStageEvent(stage, message, status);
 }
 
 function resetStatus(message) {
     clearElapsedTicker();
     activeJobMeta = null;
+    previousStage = null;
+    lastStatus = null;
     setStatus({
         status: "Not started",
         stage: "-",
@@ -182,6 +191,107 @@ function clearTechnicalDetails() {
     techPublicSignals.textContent = "—";
     techErrorBlock.classList.add("hidden");
     techError.textContent = "";
+}
+
+function formatLogTimestamp() {
+    const now = new Date();
+    return now.toLocaleTimeString();
+}
+
+function appendStageEvent(stage, message, status) {
+    if (!stage || stage === "-" || !message) {
+        return;
+    }
+
+    if (stage === previousStage && status === lastStatus) {
+        return;
+    }
+
+    previousStage = stage;
+    lastStatus = status;
+
+    const empty = stageLog.querySelector(".stage-log-empty");
+    if (empty) {
+        empty.remove();
+    }
+
+    const item = document.createElement("li");
+    item.className = "stage-log-item";
+    item.innerHTML = `
+        <div>
+            <span class="stage-log-ts">${formatLogTimestamp()}</span>
+            <span class="stage-log-stage">${stage}</span>
+        </div>
+        <div class="stage-log-message">${message}</div>
+    `;
+    stageLog.prepend(item);
+
+    const items = stageLog.querySelectorAll(".stage-log-item");
+    if (items.length > 16) {
+        items[items.length - 1].remove();
+    }
+}
+
+function getTotalLatencySeconds(job) {
+    const stages = Object.values(job?.timingsMs || {});
+    if (stages.length === 0) {
+        if (!job?.createdAt || !job?.finishedAt) {
+            return null;
+        }
+        const createdAt = new Date(job.createdAt).valueOf();
+        const finishedAt = new Date(job.finishedAt).valueOf();
+        if (Number.isNaN(createdAt) || Number.isNaN(finishedAt)) {
+            return null;
+        }
+        return Math.max(0, (finishedAt - createdAt) / 1000);
+    }
+
+    const totalMs = stages.reduce((sum, value) => sum + (typeof value === "number" ? value : 0), 0);
+    return Math.max(0, totalMs / 1000);
+}
+
+function renderLatencyChart() {
+    latencyChart.replaceChildren();
+    if (runHistory.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "chart-empty";
+        empty.textContent = "Run one proof to populate chart.";
+        latencyChart.appendChild(empty);
+        return;
+    }
+
+    const visible = runHistory.slice(-14);
+    const maxLatency = Math.max(...visible.map((run) => run.seconds), 1);
+
+    visible.forEach((run, idx) => {
+        const bar = document.createElement("div");
+        bar.className = "latency-bar";
+        const scaledHeight = 12 + Math.round((run.seconds / maxLatency) * 132);
+        bar.style.height = `${scaledHeight}px`;
+        bar.dataset.label = `Run ${idx + 1}: ${run.seconds.toFixed(2)}s`;
+        latencyChart.appendChild(bar);
+    });
+}
+
+function maybeCaptureRun(job) {
+    if (job.status !== "COMPLETED" || !job.finishedAt || !job.jobId) {
+        return;
+    }
+
+    if (runHistory.some((entry) => entry.jobId === job.jobId)) {
+        return;
+    }
+
+    const seconds = getTotalLatencySeconds(job);
+    if (seconds === null) {
+        return;
+    }
+
+    runHistory.push({
+        jobId: job.jobId,
+        seconds
+    });
+    renderLatencyChart();
 }
 
 function formatTime(iso) {
@@ -390,6 +500,7 @@ async function pollProofJob(jobId) {
         }
 
         renderTechnicalDetails(job);
+        maybeCaptureRun(job);
 
         if (job.status === "COMPLETED") {
             clearElapsedTicker();
@@ -418,6 +529,11 @@ function showResult(ok, message) {
 document.getElementById("randomPuzzleBtn").addEventListener("click", loadRandomBoard);
 document.getElementById("autoSolveBtn").addEventListener("click", autoSolveBoard);
 document.getElementById("submitBtn").addEventListener("click", submitProofJob);
+clearRunsBtn.addEventListener("click", () => {
+    runHistory.length = 0;
+    renderLatencyChart();
+});
 
 renderBoard();
 resetStatus("Load a puzzle and submit a completed board.");
+renderLatencyChart();
