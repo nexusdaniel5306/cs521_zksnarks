@@ -8,10 +8,12 @@
 </head>
 <body>
     <main class="container">
-        <h1>Sudoku zk-SNARK Demo</h1>
-        <p class="subtitle">
-            Prove you know a valid Sudoku solution without revealing the solved board.
-        </p>
+        <section class="hero">
+            <h1>Sudoku zk-SNARK Demo</h1>
+            <p class="subtitle">
+                Prove you know a valid Sudoku solution without revealing the solved board.
+            </p>
+        </section>
 
         <section class="panel controls">
             <button id="randomPuzzleBtn" type="button">Load Random Puzzle</button>
@@ -19,54 +21,111 @@
             <button id="submitBtn" type="button">Generate zk Proof</button>
         </section>
 
-        <section class="panel">
-            <h2>Puzzle Board</h2>
-            <p class="hint">Only empty cells are editable. Type digits 1-9.</p>
-            <div id="board" class="board" aria-label="Sudoku board"></div>
+        <section class="kpi-grid">
+            <article class="kpi-card">
+                <span class="kpi-label">Cells Filled</span>
+                <strong id="kpiFilled" class="kpi-value">0 / 81</strong>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Given Clues</span>
+                <strong id="kpiClues" class="kpi-value">0</strong>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Current Job</span>
+                <strong id="kpiJob" class="kpi-value">None</strong>
+            </article>
+            <article class="kpi-card">
+                <span class="kpi-label">Elapsed</span>
+                <strong id="kpiElapsed" class="kpi-value">-</strong>
+            </article>
+        </section>
+
+        <section class="content-grid">
+            <section class="panel">
+                <h2>Puzzle Board</h2>
+                <p class="hint">Only empty cells are editable. Type digits 1-9.</p>
+                <div id="board" class="board" aria-label="Sudoku board"></div>
+            </section>
+
+            <section class="panel">
+                <h2>Proof Status</h2>
+                <div class="status-row">
+                    <span>Status:</span>
+                    <strong id="statusText">Not started</strong>
+                </div>
+                <div class="status-row">
+                    <span>Stage:</span>
+                    <strong id="stageText">-</strong>
+                </div>
+                <div class="status-row">
+                    <span>Progress:</span>
+                    <strong id="progressText">0%</strong>
+                </div>
+                <div class="progress-track" aria-hidden="true">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <ul id="stageTimeline" class="timeline">
+                    <li class="timeline-item">QUEUED</li>
+                    <li class="timeline-item">VALIDATING_INPUT</li>
+                    <li class="timeline-item">PREPARING_CIRCUIT_INPUT</li>
+                    <li class="timeline-item">GENERATING_WITNESS</li>
+                    <li class="timeline-item">GENERATING_PROOF</li>
+                    <li class="timeline-item">VERIFYING_PROOF</li>
+                    <li class="timeline-item">COMPLETED</li>
+                </ul>
+                <p id="messageText" class="message">Load a puzzle and submit a completed board.</p>
+                <div id="resultBox" class="result-box hidden"></div>
+
+                <details id="techDrawer" class="tech-drawer hidden">
+                    <summary class="tech-drawer-summary">Technical details</summary>
+                    <div class="tech-drawer-body">
+                        <div class="tech-field">
+                            <span class="tech-label">Job ID</span>
+                            <code id="techJobId" class="tech-value">—</code>
+                        </div>
+                        <div class="meta-grid">
+                            <div class="tech-field">
+                                <span class="tech-label">Created</span>
+                                <code id="techCreatedAt" class="tech-value">—</code>
+                            </div>
+                            <div class="tech-field">
+                                <span class="tech-label">Started</span>
+                                <code id="techStartedAt" class="tech-value">—</code>
+                            </div>
+                            <div class="tech-field">
+                                <span class="tech-label">Finished</span>
+                                <code id="techFinishedAt" class="tech-value">—</code>
+                            </div>
+                        </div>
+                        <div class="tech-field">
+                            <span class="tech-label">Stage timings (ms)</span>
+                            <pre id="techTimings" class="tech-pre tech-pre--compact">—</pre>
+                        </div>
+                        <div id="techErrorBlock" class="tech-field hidden">
+                            <span class="tech-label">Error</span>
+                            <pre id="techError" class="tech-pre tech-pre--compact"></pre>
+                        </div>
+                        <details class="tech-nested">
+                            <summary>Proof (Groth16)</summary>
+                            <pre id="techProof" class="tech-pre">—</pre>
+                        </details>
+                        <details class="tech-nested">
+                            <summary>Public signals</summary>
+                            <pre id="techPublicSignals" class="tech-pre">—</pre>
+                        </details>
+                    </div>
+                </details>
+            </section>
         </section>
 
         <section class="panel">
-            <h2>Proof Status</h2>
-            <div class="status-row">
-                <span>Status:</span>
-                <strong id="statusText">Not started</strong>
-            </div>
-            <div class="status-row">
-                <span>Stage:</span>
-                <strong id="stageText">-</strong>
-            </div>
-            <div class="status-row">
-                <span>Progress:</span>
-                <strong id="progressText">0%</strong>
-            </div>
-            <p id="messageText" class="message">Load a puzzle and submit a completed board.</p>
-            <div id="resultBox" class="result-box hidden"></div>
-
-            <details id="techDrawer" class="tech-drawer hidden">
-                <summary class="tech-drawer-summary">Technical details</summary>
-                <div class="tech-drawer-body">
-                    <div class="tech-field">
-                        <span class="tech-label">Job ID</span>
-                        <code id="techJobId" class="tech-value">—</code>
-                    </div>
-                    <div class="tech-field">
-                        <span class="tech-label">Stage timings (ms)</span>
-                        <pre id="techTimings" class="tech-pre tech-pre--compact">—</pre>
-                    </div>
-                    <div id="techErrorBlock" class="tech-field hidden">
-                        <span class="tech-label">Error</span>
-                        <pre id="techError" class="tech-pre tech-pre--compact"></pre>
-                    </div>
-                    <details class="tech-nested">
-                        <summary>Proof (Groth16)</summary>
-                        <pre id="techProof" class="tech-pre">—</pre>
-                    </details>
-                    <details class="tech-nested">
-                        <summary>Public signals</summary>
-                        <pre id="techPublicSignals" class="tech-pre">—</pre>
-                    </details>
-                </div>
-            </details>
+            <h2>What the proof demonstrates</h2>
+            <ol class="explain-list">
+                <li>Each clue in the public puzzle is respected by the private solution.</li>
+                <li>Every row, column, and 3x3 box contains valid Sudoku digits.</li>
+                <li>The verifier checks only the proof and public inputs, not the solved board.</li>
+            </ol>
+            
         </section>
     </main>
 
