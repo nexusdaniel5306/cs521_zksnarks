@@ -65,13 +65,13 @@
                     <div id="progressFill" class="progress-fill"></div>
                 </div>
                 <ul id="stageTimeline" class="timeline">
-                    <li class="timeline-item">QUEUED</li>
-                    <li class="timeline-item">VALIDATING_INPUT</li>
-                    <li class="timeline-item">PREPARING_CIRCUIT_INPUT</li>
-                    <li class="timeline-item">GENERATING_WITNESS</li>
-                    <li class="timeline-item">GENERATING_PROOF</li>
-                    <li class="timeline-item">VERIFYING_PROOF</li>
-                    <li class="timeline-item">COMPLETED</li>
+                    <li class="timeline-item" data-stage="QUEUED">Queued</li>
+                    <li class="timeline-item" data-stage="VALIDATING_INPUT">Validate</li>
+                    <li class="timeline-item" data-stage="PREPARING_CIRCUIT_INPUT">Prep input</li>
+                    <li class="timeline-item" data-stage="GENERATING_WITNESS">Witness</li>
+                    <li class="timeline-item" data-stage="GENERATING_PROOF">Prove</li>
+                    <li class="timeline-item" data-stage="VERIFYING_PROOF">Verify</li>
+                    <li class="timeline-item" data-stage="COMPLETED">Done</li>
                 </ul>
                 <p id="messageText" class="message">Load a puzzle and submit a completed board.</p>
                 <div id="resultBox" class="result-box hidden"></div>
@@ -147,6 +147,7 @@
         </section>
     </main>
 
+    <script src="./stagePresenter.js"></script>
     <script src="./script.js"></script>
 </body>
 </html>

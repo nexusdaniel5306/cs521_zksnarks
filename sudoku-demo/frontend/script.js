@@ -65,6 +65,9 @@ const kpiElapsed = document.getElementById("kpiElapsed");
 const stageLog = document.getElementById("stageLog");
 const latencyChart = document.getElementById("latencyChart");
 const clearRunsBtn = document.getElementById("clearRunsBtn");
+const randomPuzzleBtn = document.getElementById("randomPuzzleBtn");
+const autoSolveBtn = document.getElementById("autoSolveBtn");
+const submitBtn = document.getElementById("submitBtn");
 const techJobId = document.getElementById("techJobId");
 const techCreatedAt = document.getElementById("techCreatedAt");
 const techStartedAt = document.getElementById("techStartedAt");
@@ -83,6 +86,11 @@ let activeJobMeta = null;
 let previousStage = null;
 let lastStatus = null;
 const runHistory = [];
+const DEMO_STAGE_DELAY_MS = 2000;
+const stagePresenter = createStagePresenter({
+    minStageMs: DEMO_STAGE_DELAY_MS,
+    render: renderPresentedJob
+});
 
 function cloneGrid(grid) {
     return grid.map((row) => [...row]);
@@ -160,8 +168,24 @@ function setStatus({ status, stage, progress, message }) {
     appendStageEvent(stage, message, status);
 }
 
+function renderPresentedJob(job) {
+    setStatus({
+        status: job.status,
+        stage: job.stage,
+        progress: job.progressPercent,
+        message: job.message || "Working on proof..."
+    });
+}
+
+function setControlsBusy(isBusy) {
+    randomPuzzleBtn.disabled = isBusy;
+    autoSolveBtn.disabled = isBusy;
+    submitBtn.disabled = isBusy;
+}
+
 function resetStatus(message) {
     clearElapsedTicker();
+    stagePresenter.reset();
     activeJobMeta = null;
     previousStage = null;
     lastStatus = null;
@@ -176,6 +200,7 @@ function resetStatus(message) {
     resultBox.className = "result-box hidden";
     kpiJob.textContent = "None";
     kpiElapsed.textContent = "-";
+    setControlsBusy(false);
     clearTechnicalDetails();
 }
 
@@ -308,18 +333,18 @@ function formatTime(iso) {
 }
 
 function updateElapsedLabel() {
-    if (!activeJobMeta?.createdAt) {
+    if (!activeJobMeta?.createdAt && !activeJobMeta?.visibleStartedAtMs) {
         kpiElapsed.textContent = "-";
         return;
     }
 
-    const start = new Date(activeJobMeta.createdAt).valueOf();
+    const start = activeJobMeta.visibleStartedAtMs || new Date(activeJobMeta.createdAt).valueOf();
     if (Number.isNaN(start)) {
         kpiElapsed.textContent = "-";
         return;
     }
 
-    const terminal = activeJobMeta.finishedAt ? new Date(activeJobMeta.finishedAt).valueOf() : Date.now();
+    const terminal = activeJobMeta.visibleFinishedAtMs || Date.now();
     const seconds = Math.max(0, Math.floor((terminal - start) / 1000));
     kpiElapsed.textContent = `${seconds}s`;
 }
@@ -338,7 +363,7 @@ function startElapsedTicker() {
 }
 
 function updateTimeline(stage, status) {
-    const stageNames = Array.from(stageTimeline.querySelectorAll(".timeline-item"), (item) => item.textContent);
+    const stageNames = Array.from(stageTimeline.querySelectorAll(".timeline-item"), (item) => item.dataset.stage || item.textContent);
     const activeIndex = stageNames.indexOf(stage);
 
     Array.from(stageTimeline.children).forEach((item, idx) => {
@@ -421,6 +446,8 @@ function renderTechnicalDetails(job) {
 }
 
 async function submitProofJob() {
+    setControlsBusy(true);
+    stagePresenter.reset();
     const payload = {
         puzzle: currentPuzzle,
         solution: buildSolutionSubmission()
@@ -458,11 +485,20 @@ async function submitProofJob() {
         });
 
         kpiJob.textContent = created.jobId.slice(0, 8);
-        activeJobMeta = { createdAt: created.createdAt, finishedAt: null };
+        activeJobMeta = {
+            createdAt: created.createdAt,
+            visibleStartedAtMs: Date.now(),
+            visibleFinishedAtMs: null
+        };
         startElapsedTicker();
+        stagePresenter.enqueue({
+            ...created,
+            message: "Proof job accepted. Starting demo-paced walkthrough."
+        });
 
         await pollProofJob(created.jobId);
     } catch (error) {
+        stagePresenter.reset();
         setStatus({
             status: "FAILED",
             stage: "FAILED",
@@ -470,6 +506,7 @@ async function submitProofJob() {
             message: error.message
         });
         showResult(false, error.message);
+        setControlsBusy(false);
     }
 }
 
@@ -483,35 +520,39 @@ async function pollProofJob(jobId) {
             throw new Error(job.error?.message || "Failed while polling proof job");
         }
 
-        setStatus({
-            status: job.status,
-            stage: job.stage,
-            progress: job.progressPercent,
-            message: job.message || "Working on proof..."
-        });
         kpiJob.textContent = job.jobId ? job.jobId.slice(0, 8) : "Unknown";
         activeJobMeta = {
             createdAt: job.createdAt || activeJobMeta?.createdAt || null,
-            finishedAt: job.finishedAt || null
+            visibleStartedAtMs: activeJobMeta?.visibleStartedAtMs || Date.now(),
+            visibleFinishedAtMs: activeJobMeta?.visibleFinishedAtMs || null
         };
         updateElapsedLabel();
-        if (!activeJobMeta.finishedAt && !elapsedTicker) {
+        if (!activeJobMeta.visibleFinishedAtMs && !elapsedTicker) {
             startElapsedTicker();
         }
 
         renderTechnicalDetails(job);
         maybeCaptureRun(job);
+        stagePresenter.enqueue(job);
 
         if (job.status === "COMPLETED") {
+            await stagePresenter.drain();
+            activeJobMeta.visibleFinishedAtMs = Date.now();
+            updateElapsedLabel();
             clearElapsedTicker();
             showResult(job.result?.verified === true, "Proof verified without revealing the solved board.");
+            setControlsBusy(false);
             done = true;
             break;
         }
 
         if (job.status === "FAILED") {
+            await stagePresenter.drain();
+            activeJobMeta.visibleFinishedAtMs = Date.now();
+            updateElapsedLabel();
             clearElapsedTicker();
             showResult(false, job.error?.message || "Proof generation failed");
+            setControlsBusy(false);
             done = true;
             break;
         }
@@ -526,9 +567,9 @@ function showResult(ok, message) {
     resultBox.textContent = message;
 }
 
-document.getElementById("randomPuzzleBtn").addEventListener("click", loadRandomBoard);
-document.getElementById("autoSolveBtn").addEventListener("click", autoSolveBoard);
-document.getElementById("submitBtn").addEventListener("click", submitProofJob);
+randomPuzzleBtn.addEventListener("click", loadRandomBoard);
+autoSolveBtn.addEventListener("click", autoSolveBoard);
+submitBtn.addEventListener("click", submitProofJob);
 clearRunsBtn.addEventListener("click", () => {
     runHistory.length = 0;
     renderLatencyChart();
